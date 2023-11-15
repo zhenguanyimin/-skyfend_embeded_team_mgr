@@ -1,0 +1,27 @@
+1. 安装vs code
+2. 安装cmake-3.26.4-windows-x86_64.msi，设置环境变量，cmake --version，查看版本
+3. 安装mingw,设置环境变量，gcc -v，查看版本
+4. 安装一些vs code的插件：C/C++，CMake Tools，Code Runner
+5.  c_cpp_properties.json：【compilerPath】修改为MinGW的安装目录
+	launch.json：【miDebuggerPath】修改为MinGW的安装目录
+	settings.json：【cmake.sourceDirectory】修改为本地工程的代码目录
+	tasks.json：【"detail": "编译器:】修改为MinGW的安装目录
+	修改后将上述文件放入工程的.vscode中
+6. 本地的CMakeTools路径中的cmake-tools-kits.json，增加GCC配置：
+ {
+    "name": "GCC 11.2.0 x86_64-w64-mingw32",
+    "compilers": {
+      "C": "E:\\software\\MinGW\\bin\\gcc.exe",
+      "CXX": "E:\\software\\MinGW\\bin\\g++.exe"
+    },
+    "isTrusted": true,
+    "environmentVariables": {
+      "CMT_MINGW_PATH": "E:\\software\\MinGW\\bin"
+    },
+    "preferredGenerator": {
+      "name": "MinGW Makefiles"
+    },
+    "keep": true
+  }
+ 7.重启电脑，cvscode打开工程文件夹，即可编译和运行。
+ 

@@ -1,0 +1,58 @@
+ZynqMP> printenv
+arch=arm
+baudrate=115200
+board=zynqmp
+board_name=zynqmp
+boot_a_script=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}${script}; source ${scriptaddr}
+boot_extlinux=sysboot ${devtype} ${devnum}:${distro_bootpart} any ${scriptaddr} ${prefix}${boot_syslinux_conf}
+boot_net_usb_start=usb start
+boot_prefixes=/ /boot/
+boot_script_dhcp=boot.scr.uimg
+boot_scripts=boot.scr.uimg boot.scr
+boot_syslinux_conf=extlinux/extlinux.conf
+boot_targets=qspi0 jtag mmc0 mmc1 qspi0 usb0 usb1 pxe dhcp 
+bootcmd=run distro_bootcmd
+bootcmd_dhcp=run boot_net_usb_start; if dhcp ${scriptaddr} ${boot_script_dhcp}; then source ${scriptaddr}; fi;
+bootcmd_jtag=source $scriptaddr; echo SCRIPT FAILED: continuing...;
+bootcmd_mmc0=devnum=0; run mmc_boot
+bootcmd_mmc1=devnum=1; run mmc_boot
+bootcmd_pxe=run boot_net_usb_start; dhcp; if pxe get; then pxe boot; fi
+bootcmd_qspi0=sf probe 0 0 0 && sf read $scriptaddr $script_offset_f $script_size_f && source ${scriptaddr}; echo SCRIPT FAILED: continuing...;
+bootcmd_usb0=devnum=0; run usb_boot
+bootcmd_usb1=devnum=1; run usb_boot
+bootdelay=4
+bootfstype=fat
+cpu=armv8
+dfu_ram=run dfu_ram_info && dfu 0 ram 0
+dfu_ram_info=setenv dfu_alt_info Image ram $kernel_addr $kernel_size\\;system.dtb ram $fdt_addr $fdt_size
+distro_bootcmd=for target in ${boot_targets}; do run bootcmd_${target}; done
+ethact=ethernet@ff0c0000
+ethaddr=00:0b:35:00:22:01
+fdt_addr_r=0x40000000
+fdt_high=10000000
+fdtcontroladdr=7ddd2268
+fdtfile=xilinx/zynqmp.dtb
+initrd_high=79000000
+kernel_addr_r=0x18000000
+mmc_boot=if mmc dev ${devnum}; then devtype=mmc; run scan_dev_for_boot_part; fi
+modeboot=qspiboot
+pxefile_addr_r=0x10000000
+ramdisk_addr_r=0x02100000
+reset_reason=EXTERNAL
+scan_dev_for_boot=echo Scanning ${devtype} ${devnum}:${distro_bootpart}...; for prefix in ${boot_prefixes}; do run scan_dev_for_extlinux; run scan_dev_for_scripts; done;
+scan_dev_for_boot_part=part list ${devtype} ${devnum} -bootable devplist; env exists devplist || setenv devplist 1; for distro_bootpart in ${devplist}; do if fstype ${devtype} ${devnum}:${distro_bootpart} bootfstype; then run scan_dev_for_boot; fi; done; setenv devplist
+scan_dev_for_extlinux=if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${boot_syslinux_conf}; then echo Found ${prefix}${boot_syslinux_conf}; run boot_extlinux; echo SCRIPT FAILED: continuing...; fi
+scan_dev_for_scripts=for script in ${boot_scripts}; do if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${script}; then echo Found U-Boot script ${prefix}${script}; run boot_a_script; echo SCRIPT FAILED: continuing...; fi; done
+script_offset_f=3e80000
+script_size_f=0x80000
+scriptaddr=0x20000000
+soc=zynqmp
+stderr=serial@ff000000
+stdin=serial@ff000000
+stdout=serial@ff000000
+thor_ram=run dfu_ram_info && thordown 0 ram 0
+ubifs_boot=env exists bootubipart || env set bootubipart UBI; env exists bootubivol || env set bootubivol boot; if ubi part ${bootubipart} && ubifsmount ubi${devnum}:${bootubivol}; then devtype=ubi; run scan_dev_for_boot; fi
+usb_boot=usb start; if usb dev ${devnum}; then devtype=usb; run scan_dev_for_boot_part; fi
+vendor=xilinx
+
+Environment size: 3101/32764 bytes

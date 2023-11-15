@@ -1,0 +1,28 @@
+
+MPSoC逻辑加速模块数据通道快速设计（FAE提供）
+https://www.cnblogs.com/hankfu/p/11950376.html
+
+
+zynq操作系统： Linux驱动开发AXIDMA篇
+https://blog.csdn.net/qq_42330920/article/details/115618482
+
+
+git开源项目实例（需要修改代码适配 v5.15 kernel）
+https://github.com/bperez77/xilinx_axidma
+
+
+zynq操作系统：Linux驱动开发AXIDMA补充篇 多路DMA
+https://blog.csdn.net/qq_42330920/article/details/115704028
+
+
+官网DMA寄存器参数
+AXI DMA v7.1 LogiCORE IP Product Guide
+https://docs.xilinx.com/r/en-US/pg021_axi_dma/S2MM_DMASR-S2MM-DMA-Status-Register-Offset-34h
+
+
+官网DMA指南
+https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/1027702787/Linux+DMA+From+User+Space+2.0#Source-Code
+
+
+官网DMA示例（基本没用）
+https://github.com/Xilinx-Wiki-Projects/software-prototypes

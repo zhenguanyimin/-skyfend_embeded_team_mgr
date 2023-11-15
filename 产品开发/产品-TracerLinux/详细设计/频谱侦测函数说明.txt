@@ -1,0 +1,53 @@
+一、频谱侦功能入口函数
+
+mcu_Setup_Intr_System();//初始化与MCU串口，用于接收按键事件，0x5a：表示短按时间（定向模式按键）
+	//中断服务函数
+	void MCU_UART_Handler(void *pvNotUsed)；
+
+InitImuJy901Process_Task();//初始化与陀螺仪串口，用于接收陀螺仪上传的姿态信息
+	//中断服务函数
+	void uart_imu_isr(UART_TYPEDEF *uart_devp)；
+	
+InitDataPath_Task();//初始化频谱侦测DMA，并创建频谱侦测任务
+
+
+二、频谱侦功能主要函数说明
+
+void RDMAPDataCallback(s32 type, s32 len)；//接收PL传输的时频图，60帧为一包有效数据
+
+void DataPath_Task(void *pvParameters)；//
+	//将全向侦测算法所需数据传递至算法函数sfDroneSnifferV1
+	rpc_droneSniffer_noFilt(droneInfo, &nDrone, specMat, upMat, cenFreq, fs, bw, gain, useRow, &tempAmp);
+	
+	//用于导出频谱侦测时频数据
+	NetDataOutput(framenum, nDrone, DetFreqItemCurr);
+
+	//更新无人机检测结果列表
+	pOutsideInterface->pSetDetectionResult(droneInfo, nDrone, DetFreqItemCurr, FirstTagetUpdate);
+
+	//获取陀螺姿态信息，进行定向处理
+	GetAngleInfo(&roll, &pitch, &yaw);
+	OrientateProcess(framenum, yaw, pitch, tempAmp, GetLastDetFreqItem(), specMat, upMat, DetFreqItemCurr, fs, pDroneReportResult);
+		//计算全向、定向天线功率值
+		sfDxNewProcessing(omniMat, orienMat, (int)(tmpDown + 2), (int)(tmpUp - 2), flag, useRow, listAngle, listAmQ, listAmD, listAmC, listFP, GroupCntNumDx);
+		//判断水平扫描范围是否足够（超过360度）
+		if(sfDxIfAzimuthEnough(&listAngleAz[0], GroupCntNumDx, &statusFW1, &statusFW2) == 1)
+		//判断是否存在定向最大功率大于全向最大功率的数据
+		sfDxIfLegal(listAngleAz, listAngleEl, listAmQ, listAmD, listAmC, listFP, GroupCntNumDx);
+		//计算无人机方向角
+		sfDxDirCalc(&listAmD[0], &listAngleAz[0], GroupCntNumDx, &LevelAmpMax1, &LevelAngleCen1, (AppropriateFreq-1));
+	
+三、主要文件或目录有：
+
+全向侦测算法目录
+src\app\alg\det_alg
+
+频谱侦测嵌入式代码目录
+src\app\data_path\data_path_droneid.c
+
+定向侦测代码
+src\app\process_task\orientation.c
+
+AD9361配置代码
+src\hal\hal_ad9361\ad9361_config.c
+ 
